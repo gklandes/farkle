@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { GameService } from './game.service';
 
 @Component({
   selector: 'app-root',
@@ -7,11 +8,10 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  @Input() dieValue = 1;
-
-  onDieChange (val) {
-    if (val <= 6 && val >= 1) {
-      this.dieValue = val;
-    }
+  constructor (private gameService: GameService) {
+    this.loadGame();
+  }
+  private loadGame() {
+    this.gameService.load(JSON.parse(localStorage.getItem('saveGame')));
   }
 }

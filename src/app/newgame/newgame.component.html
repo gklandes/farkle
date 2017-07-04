@@ -1,0 +1,16 @@
+<div class="page-content">
+  <h2>Players</h2>
+  <div *ngFor="let player of players; let i = index">
+    <md-input-container>
+      <input mdInput [required]="players.length < 2" placeholder="Player {{i+1}}" [(ngModel)]="players[i].name">
+    </md-input-container>
+  </div>
+  <button md-raised-button color="accent" (click)="addPlayer()" *ngIf="players.length < 6">
+    <i class="fa fa-plus"></i> Add Player
+  </button>
+</div>
+<div class="page-button">
+  <button md-raised-button color="primary" (click)="startGame()" [disabled]="!hasPlayers()">
+    <i class="fa fa-play"></i> Start
+  </button>
+</div>
