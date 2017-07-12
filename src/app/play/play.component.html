@@ -1,0 +1,25 @@
+<div class="page-content">
+  <h2>{{ player.name }}</h2>
+  <p>Score: {{ player.score }}
+
+  <table>
+    <tr>
+      <td>Roll'em</td>
+      <td>Hold'em</td>
+    </tr>
+    <tr *ngFor="let die of dice">
+      <td>
+        <app-die [dieValue]="die.value" [hidden]="die.value < 1"></app-die>
+        <span [hidden]="die.value >= 1">?</span>
+      </td>
+    </tr>
+  </table>
+</div>
+<div class="page-button b-2">
+  <button md-raised-button color="primary" (click)="roll()" [disabled]="false">
+    <i class="fa fa-repeat"></i> Roll
+  </button>
+  <button md-raised-button color="primary" (click)="pass()" [disabled]="false">
+    <i class="fa fa-arrow-circle-o-right"></i> Pass
+  </button>
+</div>

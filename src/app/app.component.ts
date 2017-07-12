@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { GameService } from './game.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -8,10 +7,7 @@ import { GameService } from './game.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  constructor (private gameService: GameService) {
-    this.loadGame();
-  }
-  private loadGame() {
-    this.gameService.load(JSON.parse(localStorage.getItem('saveGame')));
+  constructor(private router: Router) {
+    this.router.navigate(['']);
   }
 }

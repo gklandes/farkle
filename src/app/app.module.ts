@@ -17,6 +17,7 @@ import { AppComponent } from './app.component';
 import { DieComponent } from './die/die.component';
 import { HomeComponent } from './home/home.component';
 import { NewgameComponent } from './newgame/newgame.component';
+import { PlayComponent } from './play/play.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { NewgameComponent } from './newgame/newgame.component';
     DieComponent,
     HomeComponent,
     NewgameComponent,
+    PlayComponent,
   ],
   imports: [
     BrowserModule,

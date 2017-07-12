@@ -64,11 +64,26 @@ md-sidenav {
   position: fixed;
   width: 100%;
 
+  // &.b-1 {
+  //   button.mat-primary,
+  //   button.mat-accent {
+  //     width: 100%;
+  //   }
+  // }
+
   button.mat-primary,
   button.mat-accent {
+    display: inline-block;
     font-size: 2em;
     padding: 10px;
     width: 100%;
+  }
+
+  &.b-2 {
+    button.mat-primary,
+    button.mat-accent {
+      width: 49.9%;
+    }
   }
 }
 

@@ -1,8 +1,11 @@
 <div class="cover-outer">
   <div class="cover-inner">
-
     <div class="cover-container">
       <h1 class="site-title">FARKLE!</h1>
+      <div *ngIf="hasGame">
+        <button md-raised-button color="primary" [routerLink]="['/play']">Resume Game</button><br>
+        or
+      </div>
       <button md-raised-button color="primary" [routerLink]="['/newgame']">New Game</button>
       <div>
         <app-die dieValue="1"></app-die>
@@ -10,6 +13,5 @@
         <app-die dieValue="3"></app-die>
       </div>
     </div>
-
   </div>
 </div>

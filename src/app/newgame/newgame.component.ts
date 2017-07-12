@@ -12,7 +12,7 @@ import * as _ from 'underscore';
   styleUrls: ['./newgame.component.scss']
 })
 export class NewgameComponent implements OnInit {
-  players;
+  players: Player[];
 
   constructor(
     private gameService: GameService,
@@ -20,7 +20,8 @@ export class NewgameComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.players = [new Player()];
+    this.players = [];
+    this.addPlayer();
   }
 
   addPlayer() {
@@ -32,7 +33,7 @@ export class NewgameComponent implements OnInit {
   }
 
   startGame() {
-    this.gameService.newGame(this.players);
+    this.gameService.start(this.players);
     this.router.navigate(['play']);
   }
 
