@@ -1,8 +1,4 @@
-@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
-// @import '~@angular/material/theming';
-// @import './styles_theme';
-
-// @include my-theme($theme);
+@import 'bootstrap';
 
 //VARIABLES
 $brand-primary: #004a8c;
@@ -23,15 +19,7 @@ md-sidenav-container,
 
 body{
   font-family: 'Montserrat', sans-serif;
-}
-
-md-sidenav {
-  width: 200px;
-}
-
-.mat-input-container {
-  display: block;
-  width: 100%;
+  padding-top: 70px;
 }
 
 .sidenav-content,
@@ -39,11 +27,9 @@ md-sidenav {
   margin: 10px;
 }
 
-.site-title {
-  font-family: 'Bangers', cursive;
-  letter-spacing: 3px;
-  margin: 0;
-}
+// .navbar-brand {
+//   font-family: 'Bangers', cursive;
+// }
 
 .sidenav-content {
   ul {

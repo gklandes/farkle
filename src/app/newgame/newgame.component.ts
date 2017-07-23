@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router'
-import { MdToolbarModule, MdInputModule } from '@angular/material';
+// import { MdToolbarModule, MdInputModule } from '@angular/material';
 import { GameService, Player } from '../game.service';
 import * as _ from 'underscore';
 
@@ -8,8 +8,7 @@ import * as _ from 'underscore';
 
 @Component({
   selector: 'app-setup',
-  templateUrl: './newgame.component.html',
-  styleUrls: ['./newgame.component.scss']
+  templateUrl: './newgame.component.html'
 })
 export class NewgameComponent implements OnInit {
   players: Player[];

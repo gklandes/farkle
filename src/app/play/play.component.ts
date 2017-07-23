@@ -6,8 +6,7 @@ import { DieComponent } from '../die/die.component';
 
 @Component({
   selector: 'app-play',
-  templateUrl: './play.component.html',
-  styleUrls: ['./play.component.scss']
+  templateUrl: './play.component.html'
 })
 export class PlayComponent implements OnInit {
   dice: Array<{ value: number, held: boolean }>;

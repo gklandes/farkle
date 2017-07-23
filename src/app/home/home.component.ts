@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MdButtonModule } from '@angular/material';
+// import { MdButtonModule } from '@angular/material';
 import { GameService } from '../game.service';
 
 @Component({

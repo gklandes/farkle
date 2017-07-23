@@ -4,8 +4,7 @@ import { Component, OnInit, Input } from '@angular/core';
   selector: 'app-die',
   template: `
 <img src="assets/images/{{dieImg[dieValue-1]}}" height="70" width="70" *ngIf="dieValue">
-`,
-  styleUrls: ['./die.component.scss']
+`
 })
 export class DieComponent implements OnInit {
 
