@@ -28,7 +28,7 @@ export class PlayComponent implements OnInit {
       return;
     }
 
-    for (let i = 1; i <= 6; i++) { 
+    for (let i = 1; i <= 6; i++) {
       this.dice.push({
         value: 0,
         held: false
