@@ -3,7 +3,7 @@ import { Component, OnInit, Input } from '@angular/core';
 @Component({
   selector: 'app-die',
   template: `
-<img src="assets/images/{{dieImg[dieValue-1]}}" height="70" width="70" *ngIf="dieValue">
+<img src="assets/images/{{dieImg[dieValue-1]}}" height="{{dieSize}}" width="{{dieSize}}" *ngIf="dieValue">
 `
 })
 export class DieComponent implements OnInit {
@@ -13,6 +13,7 @@ export class DieComponent implements OnInit {
   dieSelect: string;
 
   @Input() dieValue: number;
+  @Input() dieSize: number;
 
   constructor() {
     this.dieImg = [
