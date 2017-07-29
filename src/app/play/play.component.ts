@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { Router } from '@angular/router';
 import * as _ from 'underscore';
 import { GameService, Player } from '../game.service';
@@ -42,8 +43,12 @@ export class PlayComponent implements OnInit {
     _.chain(this.dice)
       .filter(x => !x.held)
       .each(this.setRollVal)
-      ;
+    ;
       // .value();
+  }
+
+  hold (die){
+    die.held = !die.held;
   }
 
   private setRollVal (x) {

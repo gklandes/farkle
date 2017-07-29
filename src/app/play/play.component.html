@@ -6,8 +6,8 @@
     {{ player.name }}
   </h2>
 
-  <div *ngFor="let die of dice" class="die-tray">
-    <app-die [dieValue]="die.value" [hidden]="die.value < 1" [dieSize]="50"></app-die>
+  <div *ngFor="let die of dice" class="die-tray" (click)="hold(die)" [ngClass]="{'hold':die.held}">
+    <app-die [dieValue]="die.value" [hidden]="die.value < 1" [dieSize]="60"></app-die>
   </div>
 </div>
 <div class="page-buttons">
