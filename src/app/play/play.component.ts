@@ -24,6 +24,7 @@ export class PlayComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log(this.gameService);
     if (!this.gameService.hasGame()) {
       this.router.navigate(['/newgame']);
       return;

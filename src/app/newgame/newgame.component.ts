@@ -12,6 +12,7 @@ import * as _ from 'underscore';
 })
 export class NewgameComponent implements OnInit {
   players: Player[];
+  goal: number;
 
   constructor(
     private gameService: GameService,
@@ -21,6 +22,7 @@ export class NewgameComponent implements OnInit {
   ngOnInit() {
     this.players = [];
     this.addPlayer();
+    this.goal = 1000;
   }
 
   addPlayer() {
@@ -32,7 +34,7 @@ export class NewgameComponent implements OnInit {
   }
 
   startGame() {
-    this.gameService.start(this.players);
+    this.gameService.start(this.players, this.goal);
     this.router.navigate(['play']);
   }
 

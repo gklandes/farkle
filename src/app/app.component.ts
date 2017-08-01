@@ -14,7 +14,7 @@
 
       ngOnInit () {
         this.showHeader = false;
-        this.router.navigate(['']);
+        // this.router.navigate(['']);
         this.router.events.subscribe((event) => {
           if (event instanceof NavigationEnd) {
             this.showHeader = event.url !== '/';

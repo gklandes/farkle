@@ -1,14 +1,18 @@
 <div class="page-content">
   <h2>Players</h2>
-  <div *ngFor="let player of players; let i = index">
-    <input [required]="players.length < 2" placeholder="Player {{i+1}}" [(ngModel)]="players[i].name">
+  <div class="form-group" *ngFor="let player of players; let i = index">
+    <input class="form-control" [required]="players.length < 2" placeholder="Player {{i+1}}" [(ngModel)]="players[i].name">
   </div>
-  <button class="btn btn-default" (click)="addPlayer()" *ngIf="players.length < 6">
-    <i class="fa fa-plus"></i> Add Player
+  <button class="btn btn-block btn-warning" (click)="addPlayer()" *ngIf="players.length < 6">
+    +<i class="fa fa-user"></i> Add Player
   </button>
+  <h2>Play to Score</h2>
+  <div class="form-group">
+    <input class="form-control" type="number"  [(ngModel)]="goal">
+  </div>
 </div>
-<div class="page-button">
-  <button class="btn btn-primary" (click)="startGame()" [disabled]="!hasPlayers()">
+<div class="page-buttons">
+  <button class="btn btn-block btn-lg btn-success" (click)="startGame()" [disabled]="!hasPlayers()">
     <i class="fa fa-play"></i> Start
   </button>
 </div>
