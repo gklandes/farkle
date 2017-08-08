@@ -6,9 +6,16 @@
     {{ player.name }}
   </h2>
 
-  <div *ngFor="let die of dice" class="die-tray" (click)="hold(die)" [ngClass]="{'hold':die.held}">
-    <app-die [dieValue]="die.value" [hidden]="die.value < 1" [dieSize]="60"></app-die>
+  <div class="message-container"><div class="message" [ngClass]="{'out':phase !== 'start'}">
+    {{ message }}
+  </div></div>
+
+  <div *ngFor="let die of dice" class="die-tray" (click)="hold(die)" [ngClass]="{'hold':die.held, 'in':phase !== 'start'}">
+    <app-die [dieValue]="die.value" [dieSize]="60"></app-die>
   </div>
+
+  <p class="small text-muted">this turn: {{ turn.score }}</p>
+
 </div>
 <div class="page-buttons">
   <div class="btn-group btn-group-lg btn-group-justified">

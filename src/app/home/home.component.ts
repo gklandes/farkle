@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-// import { MdButtonModule } from '@angular/material';
 import { GameService } from '../game.service';
 
 @Component({
@@ -15,7 +14,7 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.hasGame = this.gameService.hasGame();
+    this.hasGame = this.gameService.hasPlayers();
   }
 
 }

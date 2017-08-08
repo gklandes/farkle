@@ -25,16 +25,16 @@ export class NewgameComponent implements OnInit {
     this.goal = 1000;
   }
 
-  addPlayer() {
+  addPlayer(): void {
     this.players.push(new Player());
   }
 
-  hasPlayers () {
+  hasPlayers (): boolean {
     return !!(_.filter(this.players, (x: Player) => x.name !== '')).length;
   }
 
-  startGame() {
-    this.gameService.start(this.players, this.goal);
+  startGame (): void {
+    this.gameService.newGame(this.players, this.goal);
     this.router.navigate(['play']);
   }
 
