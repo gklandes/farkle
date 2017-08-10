@@ -81,13 +81,10 @@ app-home {
   }
 }
 
-app-setup {
-
-}
-
 app-play {
   .message-container {
     position: relative;
+    z-index: 100;
 
     .message {
       background: $white;

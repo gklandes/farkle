@@ -1,13 +1,13 @@
 <div class="page-content">
   <h2>
     <span class="pull-right">
-      {{ player.score }}
+      {{ turn.player.score }}
     </span>
-    {{ player.name }}
+    {{ turn.player.name }}
   </h2>
 
-  <div class="message-container"><div class="message" [ngClass]="{'out':phase !== 'start'}">
-    {{ message }}
+  <div class="message-container"><div class="message" [ngClass]="{'out':!message.in}">
+    {{ message.str }}
   </div></div>
 
   <div *ngFor="let die of dice" class="die-tray" (click)="hold(die)" [ngClass]="{'hold':die.held, 'in':phase !== 'start'}">
