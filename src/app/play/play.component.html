@@ -1,29 +1,43 @@
 <div class="page-content">
   <h2>
     <span class="pull-right">
-      {{ turn.player.score }}
-    </span>
-    {{ turn.player.name }}
+      {{ player.score }}
+    </span> {{ player.name }}
   </h2>
 
-  <div class="message-container"><div class="message" [ngClass]="{'out':!message.in}">
-    {{ message.str }}
-  </div></div>
-
-  <div *ngFor="let die of dice" class="die-tray" (click)="hold(die)" [ngClass]="{'hold':die.held, 'in':phase !== 'start'}">
-    <app-die [dieValue]="die.value" [dieSize]="60"></app-die>
+  <div class="message-container" [ngSwitch]="message" [ngClass]="{'in':!!message}">
+    <div class="message" *ngSwitchCase="'roll'">ROLL'EM!</div>
+    <div class="message success" *ngSwitchCase="'again'">ROLL AGAIN?</div>
+    <div class="message danger" *ngSwitchCase="'farkle'">FARKLE!</div>
   </div>
 
-  <p class="small text-muted">this turn: {{ turn.score }}</p>
+  <div *ngFor="let die of dice; index as i" class="die-tray" (click)="release(i)" [ngClass]="{'used':die.status === 'used', 'hold':die.status === 'held', 'in':(phase === 'roll' || phase === 'farkle')}">
+    <app-die [dieValue]="die.value" [dieSize]="60"></app-die>
+    <div class="set-list">
+      <div class="set" *ngFor="let set of die.scoreSets" (click)="take($event,i,set)">{{set}}</div>
+    </div>
+  </div>
+
+  <p class="text-muted">
+    msg: {{ message }} | turn score: {{ turn.score }} | roll score: {{ turn.rollScore }} | phase: <strong>{{ phase }}</strong>
+  </p>
+
+  {{ turn | json }}
 
 </div>
 <div class="page-buttons">
   <div class="btn-group btn-group-lg btn-group-justified">
-    <a class="btn btn-success" (click)="roll()">
+    <a class="btn btn-success" (click)="roll()" *ngIf="phase === 'prep' || phase ==='init'">
       <i class="fa fa-repeat"></i> Roll
     </a>
-    <a class="btn btn-danger" (click)="pass()">
+    <a class="btn btn-danger" (click)="pass()" *ngIf="phase === 'prep'">
       <i class="fa fa-arrow-circle-o-right"></i> Pass
     </a>
+    <a class="btn btn-warning" (click)="accept()" *ngIf="phase === 'roll'">
+        <i class="fa fa-check"></i> Accept
+      </a>
+    <a class="btn btn-danger" (click)="pass()" *ngIf="phase === 'farkle'">
+          <i class="fa fa-check"></i> Next Player
+        </a>
   </div>
 </div>

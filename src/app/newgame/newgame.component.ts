@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router'
-// import { MdToolbarModule, MdInputModule } from '@angular/material';
+import { Router } from '@angular/router';
 import { GameService, Player } from '../game.service';
 import * as _ from 'underscore';
-
-// declare const _;
 
 @Component({
   selector: 'app-setup',
@@ -26,7 +23,7 @@ export class NewgameComponent implements OnInit {
   }
 
   addPlayer(): void {
-    this.players.push(new Player());
+    this.players.push({ name: '', score: 0 });
   }
 
   hasPlayers (): boolean {
@@ -37,5 +34,4 @@ export class NewgameComponent implements OnInit {
     this.gameService.newGame(this.players, this.goal);
     this.router.navigate(['play']);
   }
-
 }

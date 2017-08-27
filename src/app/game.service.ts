@@ -3,21 +3,20 @@ import * as _ from 'underscore';
 
 @Injectable()
 export class GameService {
-  private game: Game;
+  game: Game;
 
   constructor() {
     const obj = JSON.parse(localStorage.getItem('saveGame'));
     const players = !!obj ? obj.players : [];
     const goal = !!obj ? obj.goal : 1000;
     this.game = new Game(players, goal);
-
   }
 
   /**
    * @desc simple test for players;
    * @returns {boolean}
    */
-  hasPlayers (): boolean {
+  hasGame (): boolean {
     return !!this.game.players.length;
   }
 
@@ -26,21 +25,31 @@ export class GameService {
    * @param index {number} optionally provide the index of a specific player; if
    *     not supplied, the current player is returned
    */
-  nextTurn (): Turn {
+  getTurn (): Turn {
     let i = this.game.turn.index;
-    if (i < 0) {
-      i = 0;
-    } else {
-      i = (i + 1 < this.game.players.length) ? i++ : 0;
-    }
+    i = (i + 2 > this.game.players.length) ? 0 : i + 1;
+
     this.game.turn = {
       index: i,
-      player: this.game.players[i],
       score: 0,
       roll: [],
       rollScore: 0
     };
+    this.updateTurn(this.game.turn);
     return this.game.turn;
+  }
+
+  getPlayer (i: number): Player {
+    return this.game.players[i];
+  }
+
+  updateTurn (turn: Turn): void {
+    _.extend(this.game.turn, turn);
+    this.save();
+  }
+
+  updatePlayer (index: number, turnScore: number) {
+    this.game.players[index].score += turnScore;
   }
 
   /**
@@ -49,10 +58,9 @@ export class GameService {
    * @param goal {number} an integer representing the score at which the game
    *     should trigger the last round.
    */
-  newGame (players: Player[], goal: number): Game {
+  newGame (players: Player[], goal: number): void {
     this.game = new Game(players, goal);
     this.save();
-    return this.game;
   }
 
   private save () {
@@ -76,7 +84,6 @@ class Game {
   ) {
     this.turn = {
       index: -1,
-      player: null,
       score: 0,
       roll: [],
       rollScore: 0
@@ -97,7 +104,6 @@ class Game {
  */
 export interface Turn {
     index: number;
-    player: Player | null;
     score: number;
     roll: Array<number>;
     rollScore: number;
@@ -107,9 +113,7 @@ export interface Turn {
  * Player
  * @desc represents a player in the game along with their score
  */
-export class Player {
-  constructor (
-    public name: string = '',
-    public score: number = 0
-  ) {}
+export interface Player {
+    name: string;
+    score: number;
 }

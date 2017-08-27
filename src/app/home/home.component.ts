@@ -14,7 +14,7 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.hasGame = this.gameService.hasPlayers();
+    this.hasGame = this.gameService.hasGame();
   }
 
 }
