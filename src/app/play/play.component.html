@@ -13,8 +13,8 @@
 
   <div *ngFor="let die of dice; index as i" class="die-tray" (click)="release(i)" [ngClass]="{'used':die.status === 'used', 'hold':die.status === 'held', 'in':(phase === 'roll' || phase === 'farkle')}">
     <app-die [dieValue]="die.value" [dieSize]="60"></app-die>
-    <div class="set-list">
-      <div class="set" *ngFor="let set of die.scoreSets" (click)="take($event,i,set)">{{set}}</div>
+    <div class="set-list" *ngIf="phase === 'roll' || phase === 'farkle'">
+      <div class="set" *ngFor="let set of getScoreSetsByDie(i)" (click)="take($event,i,set)">{{set}}</div>
     </div>
   </div>
 

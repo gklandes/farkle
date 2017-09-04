@@ -15,6 +15,7 @@ export class PlayComponent implements OnInit {
   turn: Turn;
   player: Player;
   phase: string;
+  scoreSets: {};
 
   constructor(
     private gameService: GameService,
@@ -31,6 +32,7 @@ export class PlayComponent implements OnInit {
     this.message = '';
     // make dice
     this.dice = [];
+    this.scoreSets = {};
     for (let i = 1; i <= 6; i++) {
       this.dice.push({
         value: 0,
@@ -52,17 +54,6 @@ export class PlayComponent implements OnInit {
       this.phase = 'prep';
     }
     this.openMessage('roll');
-  }
-
-  roll (): void {
-    this.phase = 'roll';
-    this.closeMessage();
-    _.chain(this.dice)
-      .filter(x => x.status === 'open')
-      .each(this.setRollVal)
-    ;
-    this.turn.roll = this.dice.map(x => x.value);
-    this.checkRoll();
   }
 
   pass (): void {
@@ -123,58 +114,99 @@ export class PlayComponent implements OnInit {
     }[set];
   }
 
-  private checkRoll (): void {
-    let farkle = true;
+  roll (): void {
+    this.phase = 'roll';
+    this.closeMessage();
+    this.scoreSets = {};
+
+    // roll the open dice
+    _.chain(this.dice)
+      .filter(x => x.status === 'open')
+      .each(this.setRollVal)
+    ;
+    this.turn.roll = this.dice.map(x => x.value);
+
+    // analyze dice
     const faces = [1, 2, 3, 4, 5, 6];
-    // const dice = _.chain(this.dice)
-    //   .filter(x => !x.held)
-    //   .value()
-    //   .sort()
-    // ;
-    // mark single scoring dice
-    _.each(this.dice, x => {
-      if (x.value === 1 || x.value === 5) {
-        farkle = false;
-        x.scoreSets.push('single');
+    const counts = _.reduce(faces, (arr, face, i) => {
+      const obj = { face: face, qty: 0, indexes: [] };
+      _.each(this.dice, (die, ii) => {
+        if (die.status === 'open' && die.value === face) {
+          obj.qty++;
+          obj.indexes.push(ii);
+        }
+      });
+      arr.push(obj);
+      return arr;
+    }, []);
+    console.log(counts);
+
+    const rolled = this.dice.reduce((arr, x, i) => {
+      if (x.status === 'open') { arr.push(_.extend({ index: i }, x)); }
+      return arr;
+    }, []);
+    const allRolled = rolled.map(x => x.index);
+
+    const pairs = _.where(counts, {qty: 2});
+    const triples = _.where(counts, {qty: 3});
+    const quads = _.where(counts, {qty: 4});
+    const pents = _.where(counts, {qty: 5});
+    const fullset = _.where(counts, {qty: 6});
+
+    // mark single scoring rolled
+    this.addToScoreSets('one', this.getIndexesByValue(1));
+    this.addToScoreSets('five', this.getIndexesByValue(5));
+
+    // find combo patterns
+    if (_.isEqual(rolled.map(x => x.value).sort(), faces)) {this.addToScoreSets('straight', allRolled); }
+    if (pairs.length === 3) { this.addToScoreSets('3pair', allRolled); }
+    if (triples.length === 2) { this.addToScoreSets('2triple', allRolled); }
+    if (fullset.length === 1) { this.addToScoreSets('6set', allRolled); }
+    if (pents.length === 1) { this.addToScoreSets('5set', _.findWhere(counts, {qty: 5}).indexes); }
+    if (quads.length === 1) { this.addToScoreSets('4set', _.findWhere(counts, {qty: 4}).indexes); }
+    if (triples.length === 1) { this.addToScoreSets('triple', _.findWhere(counts, {qty: 3}).indexes); }
+
+    // if (farkle) {
+    //   this.openMessage('farkle');
+    //   this.phase = 'farkle';
+    // }
+    console.log( 'counts:', counts,
+      '\npairs:', pairs.length,
+      'triples:', triples.length,
+      'quads:', quads.length,
+      'pents:', pents.length,
+      'fullset:', fullset.length,
+      '\nscoreSets', this.scoreSets,
+      '\nrolled', rolled,
+    );
+
+  }
+
+  getScoreSetsByDie(i: number) {
+    const arr = [];
+    // TODO: why doesn't this validate?
+    // _.each(this.scoreSets, (val, key) => {
+    //   if (val.indexes.indexOf(i) >= 0) { arr.push(key); }
+    // });
+    for (const set in this.scoreSets) {
+      if (this.scoreSets.hasOwnProperty(set)) {
+        if (this.scoreSets[set].indexOf(i) >= 0) { arr.push(set); }
       }
-    });
-
-    if (farkle) {
-      this.openMessage('farkle');
-      this.phase = 'farkle';
     }
-    // analyze the dice
-    // const counts = _.reduce(faces, (count, face) => {
-    //   count[face] = 0;
-    //   _.each(dice, die => {
-    //     if (die.value === face) { count[face]++; }
-    //   });
-    //   return count;
-    // }, {});
-    // const pairs = _.filter(counts, x => x === 2);
-    // const triples = _.filter(counts, x => x === 3);
-    // const quads = _.filter(counts, x => x === 4);
-    // const pents = _.filter(counts, x => x === 5);
-    // const fullset = _.filter(counts, x => x === 6);
-    // console.log( 'counts:', counts,
-    //   '\npairs:', pairs.length,
-    //   'triples:', triples.length,
-    //   'quads:', quads.length,
-    //   'pents:', pents.length,
-    //   'fullset:', fullset.length
-    // );
+    return arr;
+  }
 
-    // find full score patterns
-    // if (_.isEqual(dice, faces)) { return [1000, 'straight']; }
-    // if (dice.length === 6 && pairs.length === 3) { return [1500, '3pair']; }
-    // if (dice.length === 6 && triples.length === 2) { return [2500, '2triple']; }
-    // if (dice.length === 6 && fullset.length === 1) { return [3000, '6set']; }
-    // if (dice.length === 5 && pents.length === 1) { return [2000, '5set']; }
-    // if (dice.length === 4 && quads.length === 1) { return [1000, '4set']; }
-    // if (dice.length === 3 && triples.length === 1) { return [3000, 'triple']; }
+  private addToScoreSets(set: string, indexes: number[]): void {
+    this.scoreSets[set] = indexes;
+  }
 
-    // console.log('no score');
-    // return [0, ''];
+  private getIndexesByValue (val: number): number[] {
+    return _.chain(this.dice)
+      .reduce((arr, x, i) => {
+        if (x.status === 'open' && x.value === val) { arr.push(i); }
+        return arr;
+      }, [])
+      .value();
   }
 
   private openMessage (msg): void {
@@ -187,7 +219,6 @@ export class PlayComponent implements OnInit {
   }
 
   private setRollVal (x: Die): void {
-    x.scoreSets = [];
     x.value = Math.floor(Math.random() * 6) + 1;
   }
 }
