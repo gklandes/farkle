@@ -164,7 +164,7 @@ export class PlayComponent implements OnInit {
     if (fullset.length === 1) { this.addToScoreSets('6set', allRolled); }
     if (pents.length === 1) { this.addToScoreSets('5set', _.findWhere(counts, {qty: 5}).indexes); }
     if (quads.length === 1) { this.addToScoreSets('4set', _.findWhere(counts, {qty: 4}).indexes); }
-    if (triples.length === 1) { this.addToScoreSets('triple', _.findWhere(counts, {qty: 3}).indexes); }
+    if (!this.scoreSets['2triple'] && triples.length === 1) { this.addToScoreSets('triple', _.findWhere(counts, {qty: 3}).indexes); }
 
     // if (farkle) {
     //   this.openMessage('farkle');
