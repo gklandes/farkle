@@ -10,7 +10,7 @@ import { DieComponent } from '../die/die.component';
   templateUrl: './play.component.html'
 })
 export class PlayComponent implements OnInit {
-  message: string;
+  message: { type: string; data?: {}; };
   dice: Array<Die>;
   turn: Turn;
   player: Player;
@@ -29,7 +29,7 @@ export class PlayComponent implements OnInit {
       return;
     }
     // make message
-    this.message = '';
+    this.closeMessage();
     // make dice
     this.dice = [];
     this.scoreSets = {};
@@ -37,7 +37,6 @@ export class PlayComponent implements OnInit {
       this.dice.push({
         value: 0,
         status: 'open',
-        scoreSets: [],
         scoreAs: null
       });
     };
@@ -56,12 +55,15 @@ export class PlayComponent implements OnInit {
     this.openMessage('roll');
   }
 
-  pass (): void {
+  inPhase (...args: string[]): boolean {
+    return args.indexOf(this.phase) >= 0;
+  }
+
+  pass (farkle: boolean = false): void {
     this.phase = 'init';
-    this.player.score += this.turn.score;
+    if (!farkle) this.player.score += this.turn.score;
     _.each(this.dice, x => {
       x.status = 'open';
-      x.scoreSets = [];
     });
     this.prep(true);
   }
@@ -72,46 +74,8 @@ export class PlayComponent implements OnInit {
     this.turn.rollScore = 0;
     _.each(this.dice, x => {
       if (x.status === 'held') { x.status = 'used'; }
-      x.scoreSets = [];
     });
     this.openMessage('again');
-  }
-
-  take (e: Event, i: number, set: string): void {
-    e.stopPropagation();
-    const die = this.dice[i];
-    if (die.status !== 'open') { return; }
-    if (set === 'single') {
-      die.status = 'held';
-      die.scoreAs = set;
-    } else {
-      _.each(this.dice, x => {
-        x.status = 'held';
-        x.scoreAs = set;
-      });
-    }
-    this.turn.rollScore += this.getSetValue(die, set);
-  }
-
-  release (i: number, set: string): void {
-    const die = this.dice[i];
-    if (die.status !== 'held') { return; }
-    die.status = 'open';
-    die.scoreAs = null;
-    this.turn.rollScore -= this.getSetValue(die, die.scoreAs);
-  }
-
-  getSetValue (die, set: string): number {
-    return {
-      'straight': 1000,
-      '3pair': 1500,
-      '2triple': 2500,
-      '6set': 3000,
-      '5set': 2000,
-      '4set': 1000,
-      'triple': die.value === 1 ? 300 : die.value * 100,
-      'single': die.value === 1 ? 100 : 50
-    }[set];
   }
 
   roll (): void {
@@ -122,6 +86,7 @@ export class PlayComponent implements OnInit {
     // roll the open dice
     _.chain(this.dice)
       .filter(x => x.status === 'open')
+      .each(x => x.scoreAs = '')
       .each(this.setRollVal)
     ;
     this.turn.roll = this.dice.map(x => x.value);
@@ -139,7 +104,6 @@ export class PlayComponent implements OnInit {
       arr.push(obj);
       return arr;
     }, []);
-    console.log(counts);
 
     const rolled = this.dice.reduce((arr, x, i) => {
       if (x.status === 'open') { arr.push(_.extend({ index: i }, x)); }
@@ -153,23 +117,44 @@ export class PlayComponent implements OnInit {
     const pents = _.where(counts, {qty: 5});
     const fullset = _.where(counts, {qty: 6});
 
-    // mark single scoring rolled
-    this.addToScoreSets('one', this.getIndexesByValue(1));
-    this.addToScoreSets('five', this.getIndexesByValue(5));
-
     // find combo patterns
-    if (_.isEqual(rolled.map(x => x.value).sort(), faces)) {this.addToScoreSets('straight', allRolled); }
-    if (pairs.length === 3) { this.addToScoreSets('3pair', allRolled); }
-    if (triples.length === 2) { this.addToScoreSets('2triple', allRolled); }
-    if (fullset.length === 1) { this.addToScoreSets('6set', allRolled); }
-    if (pents.length === 1) { this.addToScoreSets('5set', _.findWhere(counts, {qty: 5}).indexes); }
-    if (quads.length === 1) { this.addToScoreSets('4set', _.findWhere(counts, {qty: 4}).indexes); }
-    if (!this.scoreSets['2triple'] && triples.length === 1) { this.addToScoreSets('triple', _.findWhere(counts, {qty: 3}).indexes); }
+    let autoScore: string | boolean = false;
+    if (_.isEqual(rolled.map(x => x.value).sort(), faces)) {
+      autoScore = 'straight';
+      this.addToScoreSets('straight', allRolled);
+    }
+    if (pairs.length === 3) {
+      autoScore = '3pair';
+      this.addToScoreSets('3pair', allRolled);
+    }
+    if (triples.length === 2) {
+      autoScore = '2triple';
+      this.addToScoreSets('2triple', allRolled);
+    }
+    if (fullset.length === 1) {
+      autoScore = '6set';
+      this.addToScoreSets('6set', allRolled);
+    }
+    if (pents.length === 1) {
+      if (rolled.length === 5) { autoScore = '5set'; }
+      this.addToScoreSets('5set', _.findWhere(counts, {qty: 5}).indexes);
+    }
+    if (quads.length === 1) {
+      if (rolled.length === 4) { autoScore = '4set'; }
+      this.addToScoreSets('4set', _.findWhere(counts, {qty: 4}).indexes);
+    }
+    if (triples.length === 1 && !this.scoreSets['2triple']) {
+      if (rolled.length === 3) { autoScore = 'triple'; }
+      this.addToScoreSets('triple', _.findWhere(counts, {qty: 3}).indexes);
+    }
 
-    // if (farkle) {
-    //   this.openMessage('farkle');
-    //   this.phase = 'farkle';
-    // }
+    // mark single scoring rolled
+    if (counts[0].qty) { this.addToScoreSets('one', counts[0].indexes); }
+    if (counts[4].qty) { this.addToScoreSets('five', counts[4].indexes); }
+
+    // mark farkles :-(
+    if (_.isEmpty(this.scoreSets)) { autoScore = 'farkle'; }
+
     console.log( 'counts:', counts,
       '\npairs:', pairs.length,
       'triples:', triples.length,
@@ -179,7 +164,9 @@ export class PlayComponent implements OnInit {
       '\nscoreSets', this.scoreSets,
       '\nrolled', rolled,
     );
-
+    if (!!autoScore) {
+      this.scoreDice(autoScore);
+    }
   }
 
   getScoreSetsByDie(i: number) {
@@ -196,26 +183,89 @@ export class PlayComponent implements OnInit {
     return arr;
   }
 
+  take (e: Event, i: number, set: string): void {
+    e.stopPropagation();
+    const die = this.dice[i];
+    if (!this.inPhase('roll') || die.status === 'held') { return; }
+
+    const s = this.scoreSets[set];
+    if (set === 'one' || set === 'five') {
+      die.status = 'held';
+      die.scoreAs = set;
+    } else {
+      _.each(this.dice, (x, ii) => {
+        if (s.indexOf(ii) >= 0) { 
+          x.status = 'held';
+          x.scoreAs = set;
+        }
+      });
+    }
+    this.turn.rollScore += this.getSetObject(set, die).points;
+  }
+
+  release (i: number, set: string): void {
+    const die = this.dice[i];
+    if (!this.inPhase('roll') || die.status !== 'held') { return; };
+
+    const s = this.scoreSets[set];
+    if (set === 'one' || set === 'five') {
+      die.status = 'open';
+      die.scoreAs = set;
+    } else {
+      _.each(this.dice, (x, ii) => {
+        if (s.indexOf(ii) >= 0) {
+          x.status = 'open';
+          x.scoreAs = set;
+        }
+      });
+    }
+    this.turn.rollScore -= this.getSetObject(set, die).points;
+  }
+
+  private scoreDice (autoScore: string | boolean): void {
+    this.phase = 'score';
+    if (_.isString(autoScore)) {
+      if (autoScore === 'farkle') {
+        this.phase = 'farkle';
+        this.openMessage('farkle');
+      } else {
+        this.phase = 'full';
+        this.openMessage({
+          type: 'full',
+          data: _.extend({ set: autoScore }, this.getSetObject(autoScore))
+        });
+      }
+    }
+  }
+
   private addToScoreSets(set: string, indexes: number[]): void {
     this.scoreSets[set] = indexes;
   }
 
-  private getIndexesByValue (val: number): number[] {
-    return _.chain(this.dice)
-      .reduce((arr, x, i) => {
-        if (x.status === 'open' && x.value === val) { arr.push(i); }
-        return arr;
-      }, [])
-      .value();
+  private getSetObject (set: string, die?: Die): { noun: string; points: number } {
+    return {
+      'straight': { noun: 'A Straight', points: 1000},
+      '3pair': { noun: 'Three Pair', points: 1500},
+      '2triple': { noun: 'Two Triples', points: 2500},
+      '6set': { noun: 'A set of 6', points: 3000},
+      '5set': { noun: 'A set of 5', points: 2000},
+      '4set': { noun: 'A set of 4', points: 1000},
+      'triple': { noun: 'A Triple', points: die.value === 1 ? 300 : die.value * 100},
+      'one': { noun: 'A Single', points: 100 },
+      'five': { noun: 'A Single', points: 50 }
+    }[set];
   }
 
-  private openMessage (msg): void {
-    if (!msg) { return; }
-    this.message = msg;
+  private openMessage (msg: string | { type: string; data: {} }): void {
+    if (_.isString(msg)) {
+      this.message.type = msg;
+    } else {
+      this.message = msg;
+    }
   }
 
   private closeMessage (): void {
-    this.message = '';
+    this.message = { type: '' };
   }
 
   private setRollVal (x: Die): void {
@@ -226,6 +276,5 @@ export class PlayComponent implements OnInit {
 interface Die {
   value: number;
   status: string; // held, used, open
-  scoreSets: Array<string>;
   scoreAs: string;
 }

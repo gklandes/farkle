@@ -5,16 +5,19 @@
     </span> {{ player.name }}
   </h2>
 
-  <div class="message-container" [ngSwitch]="message" [ngClass]="{'in':!!message}">
+  <div class="message-container" [ngSwitch]="message.type" [ngClass]="{'in':!!message.type}">
     <div class="message" *ngSwitchCase="'roll'">ROLL'EM!</div>
     <div class="message success" *ngSwitchCase="'again'">ROLL AGAIN?</div>
     <div class="message danger" *ngSwitchCase="'farkle'">FARKLE!</div>
+    <div class="message success" *ngSwitchCase="'full'">
+      {{message.data.noun}}
+    </div>
   </div>
 
-  <div *ngFor="let die of dice; index as i" class="die-tray" (click)="release(i)" [ngClass]="{'used':die.status === 'used', 'hold':die.status === 'held', 'in':(phase === 'roll' || phase === 'farkle')}">
+  <div *ngFor="let die of dice; index as i" class="die-tray" (click)="release(i, die.scoreAs)" [ngClass]="{'used':die.status === 'used', 'hold':die.status === 'held', 'in':inPhase('roll', 'farkle')}">
     <app-die [dieValue]="die.value" [dieSize]="60"></app-die>
-    <div class="set-list" *ngIf="phase === 'roll' || phase === 'farkle'">
-      <div class="set" *ngFor="let set of getScoreSetsByDie(i)" (click)="take($event,i,set)">{{set}}</div>
+    <div class="set-list" *ngIf="inPhase('roll')">
+      <div class="set" *ngFor="let set of getScoreSetsByDie(i)" (click)="take($event, i, set)">{{set}}</div>
     </div>
   </div>
 
@@ -22,21 +25,19 @@
     msg: {{ message }} | turn score: {{ turn.score }} | roll score: {{ turn.rollScore }} | phase: <strong>{{ phase }}</strong>
   </p>
 
-  {{ turn | json }}
-
 </div>
 <div class="page-buttons">
   <div class="btn-group btn-group-lg btn-group-justified">
-    <a class="btn btn-success" (click)="roll()" *ngIf="phase === 'prep' || phase ==='init'">
+    <a class="btn btn-success" (click)="roll()" *ngIf="inPhase('prep', 'init')">
       <i class="fa fa-repeat"></i> Roll
     </a>
-    <a class="btn btn-danger" (click)="pass()" *ngIf="phase === 'prep'">
+    <a class="btn btn-danger" (click)="pass()" *ngIf="inPhase('prep')">
       <i class="fa fa-arrow-circle-o-right"></i> Pass
     </a>
-    <a class="btn btn-warning" (click)="accept()" *ngIf="phase === 'roll'">
+    <a class="btn btn-warning" (click)="accept()" *ngIf="inPhase('roll','score')">
         <i class="fa fa-check"></i> Accept
       </a>
-    <a class="btn btn-danger" (click)="pass()" *ngIf="phase === 'farkle'">
+    <a class="btn btn-danger" (click)="pass(true)" *ngIf="inPhase('farkle')">
           <i class="fa fa-check"></i> Next Player
         </a>
   </div>
